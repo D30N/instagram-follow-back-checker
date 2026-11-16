@@ -32,13 +32,13 @@
   h1 .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
   .sub{color:var(--muted);font-size:17px;max-width:620px;margin:0 auto}
   .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;margin-top:26px}
-  .drop{display:block;border:2px dashed #d1d5db;border-radius:14px;padding:38px 20px;text-align:center;cursor:pointer;transition:.15s;background:#fff}
+  .drop{display:block;border:2px dashed #d1d5db;border-radius:14px;padding:38px 20px;text-align:center;cursor:default;transition:.15s;background:#fff}
   .drop:hover,.drop.drag{border-color:var(--pink);background:#fff5f8}
   .drop .icon{font-size:42px;line-height:1}
   .drop h2{margin:12px 0 6px;font-size:20px}
   .drop p{margin:0;color:var(--muted);font-size:15px}
   .drop input{display:none}
-  .btn{display:inline-block;border:0;border-radius:999px;padding:12px 22px;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none}
+  .btn{display:inline-block;border:0;border-radius:999px;padding:12px 22px;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;font-family:inherit}
   .btn-primary{background:var(--grad);color:#fff;margin-top:16px}
   .btn-ghost{background:#f3f4f6;color:#111827;margin-top:16px}
   .btn-small{padding:8px 14px;font-size:13px;margin:0 6px 6px 0}
@@ -116,13 +116,13 @@
 
   <main>
     <section class="card" id="uploadCard">
-      <label class="drop" id="dropZone" for="fileInput">
+      <div class="drop" id="dropZone">
         <div class="icon">&#128193;</div>
         <h2 data-i18n="dropTitle">Drop your Instagram ZIP here</h2>
-        <p data-i18n-html="dropText">Or tap to choose a file. You can also drop the <code>followers_1.json</code> and <code>following.json</code> files directly.</p>
-        <span class="btn btn-primary" data-i18n="chooseZip">Choose ZIP file</span>
+        <p data-i18n-html="dropText">Or tap the button below to choose a file. You can also drop the <code>followers_1.json</code> and <code>following.json</code> files directly.</p>
+        <button type="button" class="btn btn-primary" id="chooseBtn" data-i18n="chooseZip">Choose ZIP file</button>
         <input type="file" id="fileInput" accept=".zip,application/zip,application/json,.json" multiple>
-      </label>
+      </div>
       <p class="hint" data-i18n="hint">Your file is read only inside this browser tab. Nothing is uploaded to any server, and nothing is saved after you close the page.</p>
       <div class="error" id="errorBox" role="alert"></div>
       <div class="progress" id="progressBox"><div class="bar"><i id="progressBar"></i></div><p id="progressText" data-i18n="progressReading">Reading your file...</p></div>
@@ -214,7 +214,7 @@
       h1b: "follow you back?",
       sub: "Upload your Instagram data ZIP. In seconds you get the exact list of people you follow who do not follow you back.",
       dropTitle: "Drop your Instagram ZIP here",
-      dropText: "Or tap to choose a file. You can also drop the <code>followers_1.json</code> and <code>following.json</code> files directly.",
+      dropText: "Or tap the button below to choose a file. You can also drop the <code>followers_1.json</code> and <code>following.json</code> files directly.",
       chooseZip: "Choose ZIP file",
       hint: "Your file is read only inside this browser tab. Nothing is uploaded to any server, and nothing is saved after you close the page.",
       progressReading: "Reading your file...",
@@ -277,7 +277,7 @@
       h1b: "ചെയ്യാത്തവർ ആരാണ്?",
       sub: "നിങ്ങളുടെ Instagram ഡാറ്റ ZIP അപ്‌ലോഡ് ചെയ്യുക. നിങ്ങൾ ഫോളോ ചെയ്യുന്നവരിൽ തിരിച്ച് ഫോളോ ചെയ്യാത്തവരുടെ കൃത്യമായ ലിസ്റ്റ് നിമിഷങ്ങൾക്കുള്ളിൽ കിട്ടും.",
       dropTitle: "നിങ്ങളുടെ Instagram ZIP ഇവിടെ ഇടുക",
-      dropText: "അല്ലെങ്കിൽ ഫയൽ തിരഞ്ഞെടുക്കാൻ ടാപ്പ് ചെയ്യുക. <code>followers_1.json</code>, <code>following.json</code> ഫയലുകൾ നേരിട്ട് ഇടുകയും ചെയ്യാം.",
+      dropText: "അല്ലെങ്കിൽ ഫയൽ തിരഞ്ഞെടുക്കാൻ താഴെയുള്ള ബട്ടൺ ടാപ്പ് ചെയ്യുക. <code>followers_1.json</code>, <code>following.json</code> ഫയലുകൾ നേരിട്ട് ഇടുകയും ചെയ്യാം.",
       chooseZip: "ZIP ഫയൽ തിരഞ്ഞെടുക്കുക",
       hint: "നിങ്ങളുടെ ഫയൽ ഈ ബ്രൗസർ ടാബിൽ മാത്രമാണ് വായിക്കുന്നത്. ഒരു സെർവറിലേക്കും അപ്‌ലോഡ് ആകുന്നില്ല, പേജ് അടച്ചാൽ ഒന്നും സേവ് ആകുന്നില്ല.",
       progressReading: "നിങ്ങളുടെ ഫയൽ വായിക്കുന്നു...",
@@ -660,6 +660,7 @@
     if(e.dataTransfer && e.dataTransfer.files) handleFiles(e.dataTransfer.files);
   });
   fileInput.addEventListener("change", function(){ handleFiles(fileInput.files); fileInput.value = ""; });
+  document.getElementById("chooseBtn").addEventListener("click", function(){ fileInput.click(); });
 
   document.getElementById("langEn").addEventListener("click", function(){ applyLang("en"); });
   document.getElementById("langMl").addEventListener("click", function(){ applyLang("ml"); });
