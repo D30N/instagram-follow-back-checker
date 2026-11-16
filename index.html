@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instagram Follow Back Checker - Who Doesn't Follow You Back?</title>
+<meta name="description" content="Upload your Instagram data ZIP and instantly see who you follow that does not follow you back. Free, private, and everything runs in your browser. No login, no data leaves your device.">
+<meta property="og:title" content="Instagram Follow Back Checker">
+<meta property="og:description" content="Upload your Instagram data ZIP and see who does not follow you back. Free and 100% private.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='1' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%23feda75'/%3E%3Cstop offset='.35' stop-color='%23d62976'/%3E%3Cstop offset='.7' stop-color='%239625a8'/%3E%3Cstop offset='1' stop-color='%234f5bd5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='24' fill='url(%23g)'/%3E%3Ctext x='50' y='68' font-size='52' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3E%3F%3C/text%3E%3C/svg%3E">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+  :root{
+    --grad: linear-gradient(135deg,#feda75 0%,#fa7e1e 18%,#d62976 45%,#962fbf 70%,#4f5bd5 100%);
+    --ink:#1c1c1e; --muted:#6b7280; --line:#e5e7eb; --bg:#fafafa;
+    --card:#ffffff; --pink:#d62976; --green:#15803d; --green-bg:#f0fdf4;
+    --red:#b91c1c; --red-bg:#fef2f2; --radius:18px;
+    --shadow:0 10px 30px rgba(0,0,0,.08);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55}
+  a{color:var(--pink)}
+  .wrap{max-width:860px;margin:0 auto;padding:0 18px 60px}
+  header{padding:44px 0 10px;text-align:center}
+  .badge{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:600;color:#374151;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+  .badge span{color:var(--green)}
+  h1{font-size:clamp(30px,6vw,46px);line-height:1.12;margin:18px 0 10px;letter-spacing:-.02em}
+  h1 .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);font-size:17px;max-width:620px;margin:0 auto}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;margin-top:26px}
+  .drop{border:2px dashed #d1d5db;border-radius:14px;padding:38px 20px;text-align:center;cursor:pointer;transition:.15s;background:#fff}
+  .drop:hover,.drop.drag{border-color:var(--pink);background:#fff5f8}
+  .drop .icon{font-size:42px;line-height:1}
+  .drop h2{margin:12px 0 6px;font-size:20px}
+  .drop p{margin:0;color:var(--muted);font-size:15px}
+  .drop input{display:none}
+  .btn{display:inline-block;border:0;border-radius:999px;padding:12px 22px;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none}
+  .btn-primary{background:var(--grad);color:#fff;margin-top:16px}
+  .btn-ghost{background:#f3f4f6;color:#111827;margin-top:16px}
+  .btn-small{padding:8px 14px;font-size:13px;margin:0 6px 6px 0}
+  .btn-outline{background:#fff;border:1px solid var(--line);color:#111827}
+  .linklike{background:none;border:0;color:var(--pink);font-weight:700;cursor:pointer;font-size:14px;padding:0;text-decoration:underline}
+  .hint{font-size:13px;color:var(--muted);text-align:center;margin-top:12px}
+  .steps h2,.results h2{font-size:22px;margin:0 0 4px}
+  .steps ol{margin:14px 0 0;padding-left:22px}
+  .steps li{margin:10px 0}
+  .steps li b{display:block}
+  .steps code,.results code{background:#f3f4f6;border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:13px}
+  details{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+  summary{cursor:pointer;font-weight:700}
+  .error{display:none;background:var(--red-bg);border:1px solid #fecaca;color:var(--red);border-radius:12px;padding:14px 16px;margin-top:16px;font-size:15px}
+  .error.show{display:block}
+  .progress{display:none;margin-top:16px}
+  .progress.show{display:block}
+  .bar{height:8px;background:#f3f4f6;border-radius:999px;overflow:hidden}
+  .bar i{display:block;height:100%;width:30%;background:var(--grad);border-radius:999px;transition:width .3s}
+  .progress p{margin:8px 0 0;color:var(--muted);font-size:14px}
+  .results{display:none}
+  .results.show{display:block}
+  .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:18px 0}
+  .stat{background:#f9fafb;border:1px solid var(--line);border-radius:14px;padding:16px;text-align:center}
+  .stat b{display:block;font-size:30px;line-height:1.1}
+  .stat span{font-size:13px;color:var(--muted);font-weight:600}
+  .stat.hot{background:var(--red-bg);border-color:#fecaca}
+  .stat.hot b{color:var(--red)}
+  .stat.good{background:var(--green-bg);border-color:#bbf7d0}
+  .stat.good b{color:var(--green)}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 14px}
+  .tab{border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 16px;font-size:14px;font-weight:700;cursor:pointer}
+  .tab.active{background:#111827;color:#fff;border-color:#111827}
+  .tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+  .tools input[type="search"]{flex:1;min-width:180px;border:1px solid var(--line);border-radius:999px;padding:10px 16px;font-size:15px;outline:none}
+  .tools input[type="search"]:focus{border-color:var(--pink)}
+  .list{list-style:none;margin:0;padding:0}
+  .list li{display:flex;align-items:center;gap:12px;border-top:1px solid var(--line);padding:12px 4px}
+  .avatar{width:42px;height:42px;flex:0 0 42px;border-radius:50%;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;text-transform:uppercase}
+  .who{flex:1;min-width:0}
+  .who b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .who span{font-size:13px;color:var(--muted)}
+  .who a{color:var(--pink);font-weight:600;text-decoration:none}
+  .who a:hover{text-decoration:underline}
+  .mini{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 12px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+  .empty{padding:26px;text-align:center;color:var(--muted)}
+  .privacy{display:flex;gap:10px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:14px 16px;font-size:14px;margin-top:16px}
+  footer{text-align:center;color:var(--muted);font-size:13px;margin-top:34px}
+  footer a{color:var(--pink);font-weight:700}
+  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:.2s;z-index:10}
+  .toast.show{opacity:1}
+  @media (min-width:640px){ .stats{grid-template-columns:repeat(4,1fr)} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="badge"><span>&#9679; 100% private</span> &nbsp;No login, no upload, no tracking</div>
+    <h1>Who doesn't <span class="grad">follow you back?</span></h1>
+    <p class="sub">Upload your Instagram data ZIP. In seconds you get the exact list of people you follow who do not follow you back.</p>
+  </header>
+
+  <main>
+    <section class="card" id="uploadCard">
+      <label class="drop" id="dropZone" for="fileInput">
+        <div class="icon">&#128193;</div>
+        <h2>Drop your Instagram ZIP here</h2>
+        <p>Or tap to choose a file. You can also drop the <code>followers_1.json</code> and <code>following.json</code> files directly.</p>
+        <span class="btn btn-primary">Choose ZIP file</span><br>
+        <button class="btn btn-ghost" type="button" id="demoBtn">Try with demo data</button>
+        <input type="file" id="fileInput" accept=".zip,application/zip,application/json,.json" multiple>
+      </label>
+      <p class="hint">Your file is read only inside this browser tab. Nothing is uploaded to any server, and nothing is saved after you close the page.</p>
+      <div class="error" id="errorBox" role="alert"></div>
+      <div class="progress" id="progressBox"><div class="bar"><i id="progressBar"></i></div><p id="progressText">Reading your file...</p></div>
+    </section>
+
+    <section class="card results" id="resultsCard">
+      <h2>Your result</h2>
+      <p style="margin:0;color:var(--muted)" id="resultSummary">Done.</p>
+      <div class="stats">
+        <div class="stat"><b id="statFollowers">0</b><span>Followers</span></div>
+        <div class="stat"><b id="statFollowing">0</b><span>Following</span></div>
+        <div class="stat good"><b id="statMutual">0</b><span>Follow each other</span></div>
+        <div class="stat hot"><b id="statNotBack">0</b><span>Do not follow back</span></div>
+      </div>
+
+      <div class="tabs" role="tablist">
+        <button class="tab active" id="tabNotBack" type="button">Do not follow you back (<span id="countNotBack">0</span>)</button>
+        <button class="tab" id="tabFans" type="button">Follow you, you do not follow (<span id="countFans">0</span>)</button>
+      </div>
+
+      <div class="tools">
+        <input type="search" id="searchInput" placeholder="Search username..." aria-label="Search username">
+        <button class="btn btn-small btn-outline" id="copyBtn" type="button">Copy list</button>
+        <button class="btn btn-small btn-outline" id="csvBtn" type="button">Download CSV</button>
+        <button class="btn btn-small btn-outline" id="txtBtn" type="button">Download TXT</button>
+      </div>
+
+      <ul class="list" id="resultList"></ul>
+      <div style="text-align:center;margin-top:18px">
+        <button class="linklike" id="resetBtn" type="button">Check another file</button>
+      </div>
+    </section>
+
+    <section class="card steps">
+      <h2>How to get your Instagram ZIP</h2>
+      <p style="margin:0;color:var(--muted)">It takes about 2 minutes to request. Instagram usually emails the download link within a few minutes to a few hours.</p>
+      <ol>
+        <li><b>Open Instagram, go to your profile</b>Tap the menu (three lines) at the top right, then Settings.</li>
+        <li><b>Open Accounts Centre</b>Tap <code>Accounts Centre</code>, then <code>Your information and permissions</code>.</li>
+        <li><b>Request your data</b>Tap <code>Download your information</code>, then <code>Download or transfer information</code> and pick your account.</li>
+        <li><b>Pick JSON format</b>Choose <code>Some of your information</code>, tick only <code>Followers and following</code>, then Next. Set Date range to <code>All time</code> and Format to <code>JSON</code>, then tap <code>Create files</code>.</li>
+        <li><b>Download and upload here</b>Open the link Instagram emails you, download the ZIP, then drop that ZIP in the box above.</li>
+      </ol>
+      <details>
+        <summary>Why JSON, and what is inside the ZIP?</summary>
+        <p>Instagram also offers an HTML download, but this checker reads the JSON version, so please pick JSON when you request it. Inside the ZIP, your lists live in <code>connections/followers_and_following/</code> as <code>followers_1.json</code> and <code>following.json</code>. If you have a very large account, followers may be split into <code>followers_1.json</code>, <code>followers_2.json</code> and so on. This page reads every part.</p>
+        <p>Your password is never asked for here, and your ZIP never leaves your device. If a site asks for your Instagram login to show this list, do not use it.</p>
+      </details>
+      <div class="privacy"><span>&#128274;</span><span><b>Private by design.</b> The check runs fully in your browser with JavaScript. No account, no server, no storage, no cookies for this check.</span></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>This app was made by <a href="https://deepakdeon.github.io">Deon</a>.</p>
+    <p>Not affiliated with Instagram or Meta. Instagram is a trademark of Meta Platforms, Inc.</p>
+  </footer>
+</div>
+
+<div class="toast" id="toast">Copied</div>
+
+<script>
+(function(){
+  "use strict";
+  var dropZone = document.getElementById("dropZone");
+  var fileInput = document.getElementById("fileInput");
+  var errorBox = document.getElementById("errorBox");
+  var progressBox = document.getElementById("progressBox");
+  var progressBar = document.getElementById("progressBar");
+  var progressText = document.getElementById("progressText");
+  var resultsCard = document.getElementById("resultsCard");
+  var resultList = document.getElementById("resultList");
+  var searchInput = document.getElementById("searchInput");
+  var toast = document.getElementById("toast");
+
+  var state = { followers: new Map(), following: new Map(), mode: "notback", query: "" };
+
+  function showError(msg){
+    errorBox.innerHTML = msg;
+    errorBox.classList.add("show");
+    progressBox.classList.remove("show");
+  }
+  function clearError(){ errorBox.classList.remove("show"); errorBox.innerHTML = ""; }
+  function setProgress(pct, text){
+    progressBox.classList.add("show");
+    progressBar.style.width = pct + "%";
+    progressText.textContent = text;
+  }
+  function hideProgress(){ progressBox.classList.remove("show"); }
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add("show");
+    setTimeout(function(){ toast.classList.remove("show"); }, 1800);
+  }
+  function cleanUsername(v){
+    if(!v) return "";
+    v = String(v).trim();
+    v = v.replace(/^https?:\/\/(www\.)?instagram\.com\//i, "").replace(/\/.*$/, "").replace(/^@/, "");
+    return v;
+  }
+  function addUser(map, username, fullName){
+    username = cleanUsername(username);
+    if(!username) return;
+    if(!map.has(username)) map.set(username, fullName ? String(fullName).trim() : "");
+    else if(fullName && !map.get(username)) map.set(username, String(fullName).trim());
+  }
+  function collectFromValue(map, value){
+    if(!value) return;
+    if(typeof value === "string"){ addUser(map, value); return; }
+    if(Array.isArray(value)){
+      value.forEach(function(item){ collectFromValue(map, item); });
+      return;
+    }
+    if(typeof value === "object"){
+      if(Array.isArray(value.string_list_data)){
+        value.string_list_data.forEach(function(s){
+          if(s && s.value) addUser(map, s.value);
+          else if(s && s.href) addUser(map, s.href);
+        });
+        return;
+      }
+      if(value.value) addUser(map, value.value, value.title);
+      else if(value.username) addUser(map, value.username, value.full_name || value.fullName);
+      else if(value.href) addUser(map, value.href);
+      else {
+        Object.keys(value).forEach(function(k){
+          var v = value[k];
+          if(v && typeof v === "object" && (v.full_name || v.fullName || v.id)) addUser(map, k, v.full_name || v.fullName);
+          else collectFromValue(map, v);
+        });
+      }
+    }
+  }
+  function collectFromJson(map, data){
+    if(!data) return;
+    if(Array.isArray(data)){ data.forEach(function(item){ collectFromValue(map, item); }); return; }
+    if(typeof data === "object"){
+      var keys = ["relationships_followers","relationships_following","relationships_followed_by","followers","following"];
+      for(var i=0;i<keys.length;i++){
+        if(data[keys[i]]){ collectFromValue(map, data[keys[i]]); return; }
+      }
+      collectFromValue(map, data);
+    }
+  }
+  function isFollowersFile(name){ return /(^|\/)followers(_\d+)?\.json$/i.test(name); }
+  function isFollowingFile(name){ return /(^|\/)following\.json$/i.test(name); }
+
+  function render(){
+    var notBack = [], fans = [];
+    state.following.forEach(function(full, user){ if(!state.followers.has(user)) notBack.push({user:user, full:full}); });
+    state.followers.forEach(function(full, user){ if(!state.following.has(user)) fans.push({user:user, full:full}); });
+    notBack.sort(function(a,b){ return a.user.localeCompare(b.user); });
+    fans.sort(function(a,b){ return a.user.localeCompare(b.user); });
+    var mutual = state.following.size - notBack.length;
+
+    document.getElementById("statFollowers").textContent = state.followers.size.toLocaleString("en-IN");
+    document.getElementById("statFollowing").textContent = state.following.size.toLocaleString("en-IN");
+    document.getElementById("statMutual").textContent = mutual.toLocaleString("en-IN");
+    document.getElementById("statNotBack").textContent = notBack.length.toLocaleString("en-IN");
+    document.getElementById("countNotBack").textContent = notBack.length.toLocaleString("en-IN");
+    document.getElementById("countFans").textContent = fans.length.toLocaleString("en-IN");
+    document.getElementById("resultSummary").textContent =
+      notBack.length === 0
+        ? "Good news. Everyone you follow follows you back."
+        : "You follow " + state.following.size.toLocaleString("en-IN") + " people and " + notBack.length.toLocaleString("en-IN") + " of them do not follow you back.";
+
+    var items = state.mode === "notback" ? notBack : fans;
+    var q = state.query.trim().toLowerCase();
+    if(q) items = items.filter(function(it){ return it.user.toLowerCase().indexOf(q) !== -1 || (it.full && it.full.toLowerCase().indexOf(q) !== -1); });
+
+    resultList.innerHTML = "";
+    if(items.length === 0){
+      var li = document.createElement("li");
+      li.className = "empty";
+      li.textContent = q ? "No match for that search." : (state.mode === "notback" ? "Nobody here. Everyone follows you back." : "Nobody here.");
+      resultList.appendChild(li);
+      return;
+    }
+    items.forEach(function(it){
+      var li = document.createElement("li");
+      var av = document.createElement("div");
+      av.className = "avatar";
+      av.textContent = it.user.charAt(0);
+      var who = document.createElement("div");
+      who.className = "who";
+      var b = document.createElement("b");
+      b.textContent = "@" + it.user;
+      who.appendChild(b);
+      var span = document.createElement("span");
+      if(it.full){
+        span.textContent = it.full + "  ";
+      }
+      var a = document.createElement("a");
+      a.href = "https://www.instagram.com/" + encodeURIComponent(it.user) + "/";
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.textContent = "Open profile";
+      span.appendChild(a);
+      who.appendChild(span);
+      var copy = document.createElement("button");
+      copy.className = "mini";
+      copy.type = "button";
+      copy.textContent = "Copy";
+      copy.addEventListener("click", function(){ copyText(it.user); });
+      li.appendChild(av); li.appendChild(who); li.appendChild(copy);
+      resultList.appendChild(li);
+    });
+  }
+  function currentItems(){
+    var out = [];
+    if(state.mode === "notback"){
+      state.following.forEach(function(full, user){ if(!state.followers.has(user)) out.push(user); });
+    } else {
+      state.followers.forEach(function(full, user){ if(!state.following.has(user)) out.push(user); });
+    }
+    out.sort(function(a,b){ return a.localeCompare(b); });
+    return out;
+  }
+  function copyText(text){
+    var done = function(){ showToast("Copied: @" + text.split("\n")[0]); };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done, function(){ fallbackCopy(text); done(); });
+    } else { fallbackCopy(text); done(); }
+  }
+  function fallbackCopy(text){
+    var ta = document.createElement("textarea");
+    ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand("copy"); } catch(e){}
+    document.body.removeChild(ta);
+  }
+  function downloadFile(name, content, type){
+    var blob = new Blob([content], {type: type});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 500);
+  }
+  function finish(){
+    hideProgress();
+    resultsCard.classList.add("show");
+    render();
+    resultsCard.scrollIntoView({behavior:"smooth", block:"start"});
+  }
+  function handleParsed(followers, following){
+    if(followers.size === 0 && following.size === 0){
+      showError("No followers or following data found in this file. Please request the JSON format from Instagram and upload that ZIP. The HTML format will not work here.");
+      return;
+    }
+    if(followers.size === 0) showError("Followers data was not found, but following data was. Please upload the full ZIP, not only following.json.");
+    else if(following.size === 0) showError("Following data was not found, but followers data was. Please upload the full ZIP, not only followers_1.json.");
+    else clearError();
+    state.followers = followers;
+    state.following = following;
+    state.mode = "notback";
+    state.query = "";
+    searchInput.value = "";
+    document.getElementById("tabNotBack").classList.add("active");
+    document.getElementById("tabFans").classList.remove("active");
+    finish();
+  }
+  function parseJsonText(map, text, label){
+    var data;
+    try{ data = JSON.parse(text); }
+    catch(e){ showError("Could not read " + label + ". It does not look like valid JSON. Please upload the ZIP Instagram sent you."); throw e; }
+    collectFromJson(map, data);
+  }
+  function handleZip(file){
+    clearError();
+    if(typeof JSZip === "undefined"){
+      showError("The ZIP reader failed to load. Please check your internet connection and refresh the page, then try again.");
+      return;
+    }
+    setProgress(25, "Opening your ZIP...");
+    JSZip.loadAsync(file).then(function(zip){
+      setProgress(55, "Finding followers and following files...");
+      var names = Object.keys(zip.files).filter(function(n){ return !zip.files[n].dir; });
+      var followerFiles = names.filter(isFollowersFile);
+      var followingFiles = names.filter(isFollowingFile);
+      if(followerFiles.length === 0 && followingFiles.length === 0){
+        var htmlFiles = names.filter(function(n){ return /\.html$/i.test(n); });
+        if(htmlFiles.length){
+          showError("This ZIP looks like the HTML format. This checker needs the JSON format. Please request your data again from Instagram and pick Format: JSON, then upload that ZIP.");
+        } else {
+          showError("No followers or following files found in this ZIP. Please upload the full Instagram data ZIP, not a ZIP with only photos or messages.");
+        }
+        return;
+      }
+      var followers = new Map(), following = new Map();
+      var jobs = [];
+      followerFiles.forEach(function(n){ jobs.push(zip.file(n).async("string").then(function(t){ parseJsonText(followers, t, n); })); });
+      followingFiles.forEach(function(n){ jobs.push(zip.file(n).async("string").then(function(t){ parseJsonText(following, t, n); })); });
+      setProgress(80, "Comparing the two lists...");
+      return Promise.all(jobs).then(function(){ handleParsed(followers, following); });
+    }).catch(function(err){
+      console.error(err);
+      showError("Could not open this ZIP file. Please check it is the ZIP Instagram sent you and try again.");
+    });
+  }
+  function handleJsonFiles(files){
+    clearError();
+    setProgress(40, "Reading your JSON files...");
+    var followers = new Map(), following = new Map();
+    var jobs = Array.prototype.slice.call(files).map(function(f){
+      return f.text().then(function(t){
+        if(isFollowingFile(f.name)) parseJsonText(following, t, f.name);
+        else parseJsonText(followers, t, f.name);
+      });
+    });
+    Promise.all(jobs).then(function(){ setProgress(85, "Comparing the two lists..."); handleParsed(followers, following); })
+    .catch(function(err){ console.error(err); });
+  }
+  function handleFiles(fileList){
+    var files = Array.prototype.slice.call(fileList || []);
+    if(!files.length) return;
+    clearError();
+    resultsCard.classList.remove("show");
+    var zip = files.find(function(f){ return /\.zip$/i.test(f.name) || f.type === "application/zip" || f.type === "application/x-zip-compressed"; });
+    if(zip){ handleZip(zip); return; }
+    var jsons = files.filter(function(f){ return /\.json$/i.test(f.name); });
+    if(jsons.length){ handleJsonFiles(jsons); return; }
+    showError("Please upload a .zip file, or the followers_1.json and following.json files. That file type is not supported.");
+  }
+
+  dropZone.addEventListener("dragover", function(e){ e.preventDefault(); dropZone.classList.add("drag"); });
+  dropZone.addEventListener("dragleave", function(){ dropZone.classList.remove("drag"); });
+  dropZone.addEventListener("drop", function(e){
+    e.preventDefault(); dropZone.classList.remove("drag");
+    if(e.dataTransfer && e.dataTransfer.files) handleFiles(e.dataTransfer.files);
+  });
+  dropZone.addEventListener("click", function(e){
+    if(e.target && (e.target.id === "demoBtn" || e.target.closest("#demoBtn"))) return;
+  });
+  fileInput.addEventListener("change", function(){ handleFiles(fileInput.files); fileInput.value = ""; });
+
+  document.getElementById("demoBtn").addEventListener("click", function(e){
+    e.preventDefault(); e.stopPropagation();
+    clearError(); resultsCard.classList.remove("show");
+    var followers = new Map([["ammu","Ammu"],["deon.friend","Friend"],["keerthi","Keerthi"],["priya","Priya"],["rahul","Rahul"]]);
+    var following = new Map([["ammu","Ammu"],["keerthi","Keerthi"],["arjun","Arjun"],["meera","Meera"],["rahul","Rahul"],["sana","Sana"]]);
+    state.followers = followers; state.following = following;
+    state.mode = "notback"; state.query = ""; searchInput.value = "";
+    document.getElementById("tabNotBack").classList.add("active");
+    document.getElementById("tabFans").classList.remove("active");
+    finish();
+    showToast("Demo data loaded");
+  });
+
+  document.getElementById("tabNotBack").addEventListener("click", function(){
+    state.mode = "notback";
+    this.classList.add("active");
+    document.getElementById("tabFans").classList.remove("active");
+    render();
+  });
+  document.getElementById("tabFans").addEventListener("click", function(){
+    state.mode = "fans";
+    this.classList.add("active");
+    document.getElementById("tabNotBack").classList.remove("active");
+    render();
+  });
+  searchInput.addEventListener("input", function(){ state.query = searchInput.value; render(); });
+  document.getElementById("copyBtn").addEventListener("click", function(){
+    var items = currentItems();
+    if(!items.length){ showToast("Nothing to copy"); return; }
+    copyText(items.map(function(u){ return "@" + u; }).join("\n"));
+  });
+  document.getElementById("csvBtn").addEventListener("click", function(){
+    var items = currentItems();
+    if(!items.length){ showToast("Nothing to download"); return; }
+    var label = state.mode === "notback" ? "does_not_follow_back" : "you_do_not_follow_back";
+    var rows = ["username,profile_url"].concat(items.map(function(u){ return u + ",https://www.instagram.com/" + u + "/"; }));
+    downloadFile("instagram-" + label + ".csv", rows.join("\n"), "text/csv");
+  });
+  document.getElementById("txtBtn").addEventListener("click", function(){
+    var items = currentItems();
+    if(!items.length){ showToast("Nothing to download"); return; }
+    var label = state.mode === "notback" ? "does-not-follow-back" : "you-do-not-follow-back";
+    downloadFile("instagram-" + label + ".txt", items.map(function(u){ return "@" + u; }).join("\n"), "text/plain");
+  });
+  document.getElementById("resetBtn").addEventListener("click", function(){
+    resultsCard.classList.remove("show");
+    state.followers = new Map(); state.following = new Map();
+    document.getElementById("uploadCard").scrollIntoView({behavior:"smooth", block:"start"});
+  });
+})();
+</script>
+</body>
+</html>
