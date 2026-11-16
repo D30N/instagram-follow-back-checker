@@ -8,7 +8,7 @@ Live: https://d30n.github.io/instagram-follow-back-checker/
 
 1. Open the page above.
 2. Request your Instagram data as a ZIP in JSON format:
-   Instagram app, Profile, menu, Settings, Accounts Centre, Your information and permissions, Download your information, Download or transfer information, pick your account, Some of your information, tick only Followers and following, Date range All time, Format JSON, Create files.
+   Instagram app, Profile, menu, Accounts Centre, Your information and permissions, Download your information (in some versions: Export your information), Download or transfer information (in some versions: Create export), pick your account, Some of your information, tick only Followers and following, Date range All time, Format JSON, Create files.
 3. Open the link Instagram emails you and download the ZIP.
 4. Drop that ZIP on the page. You can also drop the `followers_1.json` and `following.json` files directly.
 5. See the list, search it, copy it, or download it as CSV or TXT.
