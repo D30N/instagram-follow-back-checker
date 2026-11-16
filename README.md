@@ -35,4 +35,4 @@ This tool is not affiliated with Instagram or Meta, and it never asks for your I
 
 ## Credit
 
-This app was made by [Deon](https://deepakdeon.github.io).
+[This app was made by Deon](https://deepakdeon.github.io).
