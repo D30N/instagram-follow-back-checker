@@ -374,7 +374,7 @@
   function cleanUsername(v){
     if(!v) return "";
     v = String(v).trim();
-    v = v.replace(/^https?:\/\/(www\.)?instagram\.com\//i, "").replace(/\/.*$/, "").replace(/^@/, "");
+    v = v.replace(/^https?:\/\/(www\.)?instagram\.com\//i, "").replace(/^\/?_u\//, "").replace(/\/.*$/, "").replace(/^@/, "");
     return v;
   }
   function addUser(map, username, fullName){
@@ -394,6 +394,7 @@
       if(Array.isArray(value.string_list_data)){
         value.string_list_data.forEach(function(s){
           if(s && s.value) addUser(map, s.value);
+          else if(value.title) addUser(map, value.title);
           else if(s && s.href) addUser(map, s.href);
         });
         return;
