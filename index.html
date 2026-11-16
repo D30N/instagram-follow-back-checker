@@ -85,6 +85,14 @@
   .who a:hover{text-decoration:underline}
   .mini{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 12px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
   .empty{padding:26px;text-align:center;color:var(--muted)}
+  .pagination{display:flex;flex-direction:column;gap:10px;align-items:center;margin-top:18px}
+  .page-info{font-size:13px;color:var(--muted);font-weight:600}
+  .page-btns{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+  .page-btn{min-width:36px;height:36px;border:1px solid var(--line);background:#fff;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;padding:0 12px}
+  .page-btn:hover{border-color:var(--pink)}
+  .page-btn.active{background:#111827;color:#fff;border-color:#111827}
+  .page-btn:disabled{opacity:.4;cursor:default}
+  .page-btn.ellipsis{border:0;background:transparent;cursor:default;min-width:18px;padding:0 2px}
   .privacy{display:flex;gap:10px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:14px 16px;font-size:14px;margin-top:16px}
   footer{text-align:center;color:var(--muted);font-size:13px;margin-top:34px}
   footer a{color:var(--pink);font-weight:700}
@@ -143,6 +151,10 @@
       </div>
 
       <ul class="list" id="resultList"></ul>
+      <div class="pagination" id="paginationBox" style="display:none">
+        <div class="page-info" id="pageInfo"></div>
+        <div class="page-btns" id="pageBtns"></div>
+      </div>
       <div style="text-align:center;margin-top:18px">
         <button class="linklike" id="resetBtn" type="button" data-i18n="reset">Check another file</button>
       </div>
@@ -190,7 +202,8 @@
   var searchInput = document.getElementById("searchInput");
   var toast = document.getElementById("toast");
 
-  var state = { followers: new Map(), following: new Map(), mode: "notback", query: "" };
+  var state = { followers: new Map(), following: new Map(), mode: "notback", query: "", page: 1 };
+  var PAGE_SIZE = 50;
 
   var LANGS = {
     en: {
@@ -243,6 +256,9 @@
       copied: "Copied",
       nothingCopy: "Nothing to copy",
       nothingDownload: "Nothing to download",
+      prev: "Previous",
+      next: "Next",
+      showing: "Showing {from} to {to} of {total}",
       errNoData: "No followers or following data found in this file. Please request the JSON format from Instagram and upload that ZIP. The HTML format will not work here.",
       errNoFollowers: "Followers data was not found, but following data was. Please upload the full ZIP, not only following.json.",
       errNoFollowing: "Following data was not found, but followers data was. Please upload the full ZIP, not only followers_1.json.",
@@ -303,6 +319,9 @@
       copied: "കോപ്പി ചെയ്തു",
       nothingCopy: "കോപ്പി ചെയ്യാൻ ഒന്നുമില്ല",
       nothingDownload: "ഡൗൺലോഡ് ചെയ്യാൻ ഒന്നുമില്ല",
+      prev: "മുമ്പത്തെ",
+      next: "അടുത്തത്",
+      showing: "{total} പേരിൽ {from} മുതൽ {to} വരെ",
       errNoData: "ഈ ഫയലിൽ ഫോളോവേഴ്സ് അല്ലെങ്കിൽ ഫോളോയിങ് ഡാറ്റ ഒന്നും കണ്ടില്ല. Instagram-ൽ നിന്ന് JSON ഫോർമാറ്റിൽ ഡാറ്റ റിക്വസ്റ്റ് ചെയ്ത് ആ ZIP അപ്‌ലോഡ് ചെയ്യുക. HTML ഫോർമാറ്റ് ഇവിടെ പ്രവർത്തിക്കില്ല.",
       errNoFollowers: "ഫോളോവേഴ്സ് ഡാറ്റ കണ്ടില്ല, ഫോളോയിങ് ഡാറ്റ മാത്രമേ ഉള്ളൂ. following.json മാത്രമല്ല, മുഴുവൻ ZIP-ഉം അപ്‌ലോഡ് ചെയ്യുക.",
       errNoFollowing: "ഫോളോയിങ് ഡാറ്റ കണ്ടില്ല, ഫോളോവേഴ്സ് ഡാറ്റ മാത്രമേ ഉള്ളൂ. followers_1.json മാത്രമല്ല, മുഴുവൻ ZIP-ഉം അപ്‌ലോഡ് ചെയ്യുക.",
@@ -428,6 +447,13 @@
     var q = state.query.trim().toLowerCase();
     if(q) items = items.filter(function(it){ return it.user.toLowerCase().indexOf(q) !== -1 || (it.full && it.full.toLowerCase().indexOf(q) !== -1); });
 
+    var totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+    if(state.page > totalPages) state.page = totalPages;
+    if(state.page < 1) state.page = 1;
+    var start = (state.page - 1) * PAGE_SIZE;
+    var pageItems = items.slice(start, start + PAGE_SIZE);
+    renderPagination(items.length, totalPages, start);
+
     resultList.innerHTML = "";
     if(items.length === 0){
       var li = document.createElement("li");
@@ -436,7 +462,7 @@
       resultList.appendChild(li);
       return;
     }
-    items.forEach(function(it){
+    pageItems.forEach(function(it){
       var li = document.createElement("li");
       var av = document.createElement("div");
       av.className = "avatar";
@@ -465,6 +491,48 @@
       li.appendChild(av); li.appendChild(who); li.appendChild(copy);
       resultList.appendChild(li);
     });
+  }
+  function pageWindow(total, current){
+    if(total <= 7){ var a = []; for(var i = 1; i <= total; i++) a.push(i); return a; }
+    var pages = [1];
+    var lo = Math.max(2, current - 1), hi = Math.min(total - 1, current + 1);
+    if(lo > 2) pages.push("...");
+    for(var i = lo; i <= hi; i++) pages.push(i);
+    if(hi < total - 1) pages.push("...");
+    pages.push(total);
+    return pages;
+  }
+  function renderPagination(totalItems, totalPages, start){
+    var box = document.getElementById("paginationBox");
+    var btns = document.getElementById("pageBtns");
+    if(totalItems <= PAGE_SIZE){ box.style.display = "none"; btns.innerHTML = ""; return; }
+    box.style.display = "flex";
+    document.getElementById("pageInfo").textContent = t("showing")
+      .replace("{from}", (start + 1).toLocaleString("en-IN"))
+      .replace("{to}", Math.min(start + PAGE_SIZE, totalItems).toLocaleString("en-IN"))
+      .replace("{total}", totalItems.toLocaleString("en-IN"));
+    btns.innerHTML = "";
+    function addBtn(label, page, disabled, active, ellipsis){
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "page-btn" + (active ? " active" : "") + (ellipsis ? " ellipsis" : "");
+      b.textContent = label;
+      if(disabled) b.disabled = true;
+      if(!disabled && !ellipsis){
+        b.addEventListener("click", function(){
+          state.page = page;
+          render();
+          resultList.scrollIntoView({behavior: "smooth", block: "start"});
+        });
+      }
+      btns.appendChild(b);
+    }
+    addBtn("‹ " + t("prev"), state.page - 1, state.page <= 1, false, false);
+    pageWindow(totalPages, state.page).forEach(function(p){
+      if(p === "...") addBtn("...", 0, true, false, true);
+      else addBtn(String(p), p, false, p === state.page, false);
+    });
+    addBtn(t("next") + " ›", state.page + 1, state.page >= totalPages, false, false);
   }
   function currentItems(){
     var out = [];
@@ -515,6 +583,7 @@
     state.following = following;
     state.mode = "notback";
     state.query = "";
+    state.page = 1;
     searchInput.value = "";
     document.getElementById("tabNotBack").classList.add("active");
     document.getElementById("tabFans").classList.remove("active");
@@ -597,17 +666,19 @@
 
   document.getElementById("tabNotBack").addEventListener("click", function(){
     state.mode = "notback";
+    state.page = 1;
     this.classList.add("active");
     document.getElementById("tabFans").classList.remove("active");
     render();
   });
   document.getElementById("tabFans").addEventListener("click", function(){
     state.mode = "fans";
+    state.page = 1;
     this.classList.add("active");
     document.getElementById("tabNotBack").classList.remove("active");
     render();
   });
-  searchInput.addEventListener("input", function(){ state.query = searchInput.value; render(); });
+  searchInput.addEventListener("input", function(){ state.query = searchInput.value; state.page = 1; render(); });
   document.getElementById("copyBtn").addEventListener("click", function(){
     var items = currentItems();
     if(!items.length){ showToast(t("nothingCopy")); return; }

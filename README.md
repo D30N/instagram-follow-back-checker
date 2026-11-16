@@ -19,7 +19,7 @@ Live: https://d30n.github.io/instagram-follow-back-checker/
 - Do not follow you back: people you follow who do not follow you back
 - Follow you, you do not follow: people who follow you that you do not follow back
 
-Each name links to that Instagram profile.
+Each name links to that Instagram profile. Big lists are shown 50 per page, with page numbers and Previous / Next buttons.
 
 ## Language
 
