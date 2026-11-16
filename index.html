@@ -19,10 +19,13 @@
     --shadow:0 10px 30px rgba(0,0,0,.08);
   }
   *{box-sizing:border-box}
-  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans Malayalam",Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55}
   a{color:var(--pink)}
   .wrap{max-width:860px;margin:0 auto;padding:0 18px 60px}
   header{padding:44px 0 10px;text-align:center}
+  .lang-switch{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+  .lang-btn{border:0;background:transparent;border-radius:999px;padding:6px 16px;font-size:13px;font-weight:700;cursor:pointer;color:#374151}
+  .lang-btn.active{background:#111827;color:#fff}
   .badge{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:600;color:#374151;box-shadow:0 2px 8px rgba(0,0,0,.04)}
   .badge span{color:var(--green)}
   h1{font-size:clamp(30px,6vw,46px);line-height:1.12;margin:18px 0 10px;letter-spacing:-.02em}
@@ -94,75 +97,79 @@
 <div class="wrap">
 
   <header>
-    <div class="badge"><span>&#9679; 100% private</span> &nbsp;No login, no upload, no tracking</div>
-    <h1>Who doesn't <span class="grad">follow you back?</span></h1>
-    <p class="sub">Upload your Instagram data ZIP. In seconds you get the exact list of people you follow who do not follow you back.</p>
+    <div class="lang-switch" role="group" aria-label="Language">
+      <button type="button" id="langEn" class="lang-btn active">English</button>
+      <button type="button" id="langMl" class="lang-btn">മലയാളം</button>
+    </div>
+    <div style="margin-top:14px"><div class="badge"><span>&#9679; </span><span data-i18n="badgePrivate">100% private</span> &nbsp;<span data-i18n="badgeNote">No login, no upload, no tracking</span></div></div>
+    <h1><span data-i18n="h1a">Who doesn't</span> <span class="grad" data-i18n="h1b">follow you back?</span></h1>
+    <p class="sub" data-i18n="sub">Upload your Instagram data ZIP. In seconds you get the exact list of people you follow who do not follow you back.</p>
   </header>
 
   <main>
     <section class="card" id="uploadCard">
       <label class="drop" id="dropZone" for="fileInput">
         <div class="icon">&#128193;</div>
-        <h2>Drop your Instagram ZIP here</h2>
-        <p>Or tap to choose a file. You can also drop the <code>followers_1.json</code> and <code>following.json</code> files directly.</p>
-        <span class="btn btn-primary">Choose ZIP file</span>
+        <h2 data-i18n="dropTitle">Drop your Instagram ZIP here</h2>
+        <p data-i18n-html="dropText">Or tap to choose a file. You can also drop the <code>followers_1.json</code> and <code>following.json</code> files directly.</p>
+        <span class="btn btn-primary" data-i18n="chooseZip">Choose ZIP file</span>
         <input type="file" id="fileInput" accept=".zip,application/zip,application/json,.json" multiple>
       </label>
-      <p class="hint">Your file is read only inside this browser tab. Nothing is uploaded to any server, and nothing is saved after you close the page.</p>
+      <p class="hint" data-i18n="hint">Your file is read only inside this browser tab. Nothing is uploaded to any server, and nothing is saved after you close the page.</p>
       <div class="error" id="errorBox" role="alert"></div>
-      <div class="progress" id="progressBox"><div class="bar"><i id="progressBar"></i></div><p id="progressText">Reading your file...</p></div>
+      <div class="progress" id="progressBox"><div class="bar"><i id="progressBar"></i></div><p id="progressText" data-i18n="progressReading">Reading your file...</p></div>
     </section>
 
     <section class="card results" id="resultsCard">
-      <h2>Your result</h2>
+      <h2 data-i18n="resultTitle">Your result</h2>
       <p style="margin:0;color:var(--muted)" id="resultSummary">Done.</p>
       <div class="stats">
-        <div class="stat"><b id="statFollowers">0</b><span>Followers</span></div>
-        <div class="stat"><b id="statFollowing">0</b><span>Following</span></div>
-        <div class="stat good"><b id="statMutual">0</b><span>Follow each other</span></div>
-        <div class="stat hot"><b id="statNotBack">0</b><span>Do not follow back</span></div>
+        <div class="stat"><b id="statFollowers">0</b><span data-i18n="statFollowers">Followers</span></div>
+        <div class="stat"><b id="statFollowing">0</b><span data-i18n="statFollowing">Following</span></div>
+        <div class="stat good"><b id="statMutual">0</b><span data-i18n="statMutual">Follow each other</span></div>
+        <div class="stat hot"><b id="statNotBack">0</b><span data-i18n="statNotBack">Do not follow back</span></div>
       </div>
 
       <div class="tabs" role="tablist">
-        <button class="tab active" id="tabNotBack" type="button">Do not follow you back (<span id="countNotBack">0</span>)</button>
-        <button class="tab" id="tabFans" type="button">Follow you, you do not follow (<span id="countFans">0</span>)</button>
+        <button class="tab active" id="tabNotBack" type="button"><span data-i18n="tabNotBack">Do not follow you back</span> (<span id="countNotBack">0</span>)</button>
+        <button class="tab" id="tabFans" type="button"><span data-i18n="tabFans">Follow you, you do not follow</span> (<span id="countFans">0</span>)</button>
       </div>
 
       <div class="tools">
-        <input type="search" id="searchInput" placeholder="Search username..." aria-label="Search username">
-        <button class="btn btn-small btn-outline" id="copyBtn" type="button">Copy list</button>
-        <button class="btn btn-small btn-outline" id="csvBtn" type="button">Download CSV</button>
-        <button class="btn btn-small btn-outline" id="txtBtn" type="button">Download TXT</button>
+        <input type="search" id="searchInput" placeholder="Search username..." aria-label="Search username" data-i18n-ph="searchPh">
+        <button class="btn btn-small btn-outline" id="copyBtn" type="button" data-i18n="copyList">Copy list</button>
+        <button class="btn btn-small btn-outline" id="csvBtn" type="button" data-i18n="downloadCsv">Download CSV</button>
+        <button class="btn btn-small btn-outline" id="txtBtn" type="button" data-i18n="downloadTxt">Download TXT</button>
       </div>
 
       <ul class="list" id="resultList"></ul>
       <div style="text-align:center;margin-top:18px">
-        <button class="linklike" id="resetBtn" type="button">Check another file</button>
+        <button class="linklike" id="resetBtn" type="button" data-i18n="reset">Check another file</button>
       </div>
     </section>
 
     <section class="card steps">
-      <h2>How to get your Instagram ZIP</h2>
-      <p style="margin:0;color:var(--muted)">It takes about 2 minutes to request. Instagram usually emails the download link within a few minutes to a few hours.</p>
+      <h2 data-i18n="stepsTitle">How to get your Instagram ZIP</h2>
+      <p style="margin:0;color:var(--muted)" data-i18n="stepsIntro">It takes about 2 minutes to request. Instagram usually emails the download link within a few minutes to a few hours.</p>
       <ol>
-        <li><b>Open Instagram, go to your profile</b>Tap the menu (three lines) at the top right, then Settings.</li>
-        <li><b>Open Accounts Centre</b>Tap <code>Accounts Centre</code>, then <code>Your information and permissions</code>.</li>
-        <li><b>Request your data</b>Tap <code>Download your information</code>, then <code>Download or transfer information</code> and pick your account.</li>
-        <li><b>Pick JSON format</b>Choose <code>Some of your information</code>, tick only <code>Followers and following</code>, then Next. Set Date range to <code>All time</code> and Format to <code>JSON</code>, then tap <code>Create files</code>.</li>
-        <li><b>Download and upload here</b>Open the link Instagram emails you, download the ZIP, then drop that ZIP in the box above.</li>
+        <li data-i18n-html="step1"><b>Open Instagram, go to your profile</b>Tap the menu (three lines) at the top right, then Settings.</li>
+        <li data-i18n-html="step2"><b>Open Accounts Centre</b>Tap <code>Accounts Centre</code>, then <code>Your information and permissions</code>.</li>
+        <li data-i18n-html="step3"><b>Request your data</b>Tap <code>Download your information</code>, then <code>Download or transfer information</code> and pick your account.</li>
+        <li data-i18n-html="step4"><b>Pick JSON format</b>Choose <code>Some of your information</code>, tick only <code>Followers and following</code>, then Next. Set Date range to <code>All time</code> and Format to <code>JSON</code>, then tap <code>Create files</code>.</li>
+        <li data-i18n-html="step5"><b>Download and upload here</b>Open the link Instagram emails you, download the ZIP, then drop that ZIP in the box above.</li>
       </ol>
       <details>
-        <summary>Why JSON, and what is inside the ZIP?</summary>
-        <p>Instagram also offers an HTML download, but this checker reads the JSON version, so please pick JSON when you request it. Inside the ZIP, your lists live in <code>connections/followers_and_following/</code> as <code>followers_1.json</code> and <code>following.json</code>. If you have a very large account, followers may be split into <code>followers_1.json</code>, <code>followers_2.json</code> and so on. This page reads every part.</p>
-        <p>Your password is never asked for here, and your ZIP never leaves your device. If a site asks for your Instagram login to show this list, do not use it.</p>
+        <summary data-i18n="whyJson">Why JSON, and what is inside the ZIP?</summary>
+        <p data-i18n-html="whyJsonP1">Instagram also offers an HTML download, but this checker reads the JSON version, so please pick JSON when you request it. Inside the ZIP, your lists live in <code>connections/followers_and_following/</code> as <code>followers_1.json</code> and <code>following.json</code>. If you have a very large account, followers may be split into <code>followers_1.json</code>, <code>followers_2.json</code> and so on. This page reads every part.</p>
+        <p data-i18n="whyJsonP2">Your password is never asked for here, and your ZIP never leaves your device. If a site asks for your Instagram login to show this list, do not use it.</p>
       </details>
-      <div class="privacy"><span>&#128274;</span><span><b>Private by design.</b> The check runs fully in your browser with JavaScript. No account, no server, no storage, no cookies for this check.</span></div>
+      <div class="privacy"><span>&#128274;</span><span data-i18n-html="privacy"><b>Private by design.</b> The check runs fully in your browser with JavaScript. No account, no server, no storage, no cookies for this check.</span></div>
     </section>
   </main>
 
   <footer>
     <p><a href="https://deepakdeon.github.io">This app was made by Deon</a>.</p>
-    <p>Not affiliated with Instagram or Meta. Instagram is a trademark of Meta Platforms, Inc.</p>
+    <p data-i18n="notAffiliated">Not affiliated with Instagram or Meta. Instagram is a trademark of Meta Platforms, Inc.</p>
   </footer>
 </div>
 
@@ -183,6 +190,147 @@
   var toast = document.getElementById("toast");
 
   var state = { followers: new Map(), following: new Map(), mode: "notback", query: "" };
+
+  var LANGS = {
+    en: {
+      pageTitle: "Instagram Follow Back Checker - Who Doesn't Follow You Back?",
+      badgePrivate: "100% private",
+      badgeNote: "No login, no upload, no tracking",
+      h1a: "Who doesn't",
+      h1b: "follow you back?",
+      sub: "Upload your Instagram data ZIP. In seconds you get the exact list of people you follow who do not follow you back.",
+      dropTitle: "Drop your Instagram ZIP here",
+      dropText: "Or tap to choose a file. You can also drop the <code>followers_1.json</code> and <code>following.json</code> files directly.",
+      chooseZip: "Choose ZIP file",
+      hint: "Your file is read only inside this browser tab. Nothing is uploaded to any server, and nothing is saved after you close the page.",
+      progressReading: "Reading your file...",
+      progressOpening: "Opening your ZIP...",
+      progressFinding: "Finding followers and following files...",
+      progressComparing: "Comparing the two lists...",
+      resultTitle: "Your result",
+      statFollowers: "Followers",
+      statFollowing: "Following",
+      statMutual: "Follow each other",
+      statNotBack: "Do not follow back",
+      tabNotBack: "Do not follow you back",
+      tabFans: "Follow you, you do not follow",
+      searchPh: "Search username...",
+      copyList: "Copy list",
+      downloadCsv: "Download CSV",
+      downloadTxt: "Download TXT",
+      reset: "Check another file",
+      stepsTitle: "How to get your Instagram ZIP",
+      stepsIntro: "It takes about 2 minutes to request. Instagram usually emails the download link within a few minutes to a few hours.",
+      step1: "<b>Open Instagram, go to your profile</b>Tap the menu (three lines) at the top right, then Settings.",
+      step2: "<b>Open Accounts Centre</b>Tap <code>Accounts Centre</code>, then <code>Your information and permissions</code>.",
+      step3: "<b>Request your data</b>Tap <code>Download your information</code>, then <code>Download or transfer information</code> and pick your account.",
+      step4: "<b>Pick JSON format</b>Choose <code>Some of your information</code>, tick only <code>Followers and following</code>, then Next. Set Date range to <code>All time</code> and Format to <code>JSON</code>, then tap <code>Create files</code>.",
+      step5: "<b>Download and upload here</b>Open the link Instagram emails you, download the ZIP, then drop that ZIP in the box above.",
+      whyJson: "Why JSON, and what is inside the ZIP?",
+      whyJsonP1: "Instagram also offers an HTML download, but this checker reads the JSON version, so please pick JSON when you request it. Inside the ZIP, your lists live in <code>connections/followers_and_following/</code> as <code>followers_1.json</code> and <code>following.json</code>. If you have a very large account, followers may be split into <code>followers_1.json</code>, <code>followers_2.json</code> and so on. This page reads every part.",
+      whyJsonP2: "Your password is never asked for here, and your ZIP never leaves your device. If a site asks for your Instagram login to show this list, do not use it.",
+      privacy: "<b>Private by design.</b> The check runs fully in your browser with JavaScript. No account, no server, no storage, no cookies for this check.",
+      notAffiliated: "Not affiliated with Instagram or Meta. Instagram is a trademark of Meta Platforms, Inc.",
+      summaryGood: "Good news. Everyone you follow follows you back.",
+      summarySome: "You follow {following} people and {notBack} of them do not follow you back.",
+      emptySearch: "No match for that search.",
+      emptyNotBack: "Nobody here. Everyone follows you back.",
+      emptyFans: "Nobody here.",
+      openProfile: "Open profile",
+      copy: "Copy",
+      copied: "Copied",
+      nothingCopy: "Nothing to copy",
+      nothingDownload: "Nothing to download",
+      errNoData: "No followers or following data found in this file. Please request the JSON format from Instagram and upload that ZIP. The HTML format will not work here.",
+      errNoFollowers: "Followers data was not found, but following data was. Please upload the full ZIP, not only following.json.",
+      errNoFollowing: "Following data was not found, but followers data was. Please upload the full ZIP, not only followers_1.json.",
+      errBadJson: "Could not read {label}. It does not look like valid JSON. Please upload the ZIP Instagram sent you.",
+      errJsZip: "The ZIP reader failed to load. Please check your internet connection and refresh the page, then try again.",
+      errZipHtml: "This ZIP looks like the HTML format. This checker needs the JSON format. Please request your data again from Instagram and pick Format: JSON, then upload that ZIP.",
+      errZipEmpty: "No followers or following files found in this ZIP. Please upload the full Instagram data ZIP, not a ZIP with only photos or messages.",
+      errZipOpen: "Could not open this ZIP file. Please check it is the ZIP Instagram sent you and try again.",
+      errFileType: "Please upload a .zip file, or the followers_1.json and following.json files. That file type is not supported."
+    },
+    ml: {
+      pageTitle: "Instagram ഫോളോ ബാക്ക് ചെക്കർ - തിരിച്ച് ഫോളോ ചെയ്യാത്തവർ ആരാണ്?",
+      badgePrivate: "100% സ്വകാര്യം",
+      badgeNote: "ലോഗിൻ വേണ്ട, അപ്‌ലോഡ് ഇല്ല, ട്രാക്കിങ് ഇല്ല",
+      h1a: "തിരിച്ച് ഫോളോ",
+      h1b: "ചെയ്യാത്തവർ ആരാണ്?",
+      sub: "നിങ്ങളുടെ Instagram ഡാറ്റ ZIP അപ്‌ലോഡ് ചെയ്യുക. നിങ്ങൾ ഫോളോ ചെയ്യുന്നവരിൽ തിരിച്ച് ഫോളോ ചെയ്യാത്തവരുടെ കൃത്യമായ ലിസ്റ്റ് നിമിഷങ്ങൾക്കുള്ളിൽ കിട്ടും.",
+      dropTitle: "നിങ്ങളുടെ Instagram ZIP ഇവിടെ ഇടുക",
+      dropText: "അല്ലെങ്കിൽ ഫയൽ തിരഞ്ഞെടുക്കാൻ ടാപ്പ് ചെയ്യുക. <code>followers_1.json</code>, <code>following.json</code> ഫയലുകൾ നേരിട്ട് ഇടുകയും ചെയ്യാം.",
+      chooseZip: "ZIP ഫയൽ തിരഞ്ഞെടുക്കുക",
+      hint: "നിങ്ങളുടെ ഫയൽ ഈ ബ്രൗസർ ടാബിൽ മാത്രമാണ് വായിക്കുന്നത്. ഒരു സെർവറിലേക്കും അപ്‌ലോഡ് ആകുന്നില്ല, പേജ് അടച്ചാൽ ഒന്നും സേവ് ആകുന്നില്ല.",
+      progressReading: "നിങ്ങളുടെ ഫയൽ വായിക്കുന്നു...",
+      progressOpening: "നിങ്ങളുടെ ZIP തുറക്കുന്നു...",
+      progressFinding: "ഫോളോവേഴ്സ്, ഫോളോയിങ് ഫയലുകൾ തിരയുന്നു...",
+      progressComparing: "രണ്ട് ലിസ്റ്റുകളും താരതമ്യം ചെയ്യുന്നു...",
+      resultTitle: "നിങ്ങളുടെ റിസൾട്ട്",
+      statFollowers: "ഫോളോവേഴ്സ്",
+      statFollowing: "ഫോളോയിങ്",
+      statMutual: "പരസ്പരം ഫോളോ ചെയ്യുന്നു",
+      statNotBack: "തിരിച്ച് ഫോളോ ചെയ്യുന്നില്ല",
+      tabNotBack: "തിരിച്ച് ഫോളോ ചെയ്യാത്തവർ",
+      tabFans: "നിങ്ങളെ ഫോളോ ചെയ്യുന്നു, നിങ്ങൾ ചെയ്യുന്നില്ല",
+      searchPh: "യൂസർനെയിം തിരയുക...",
+      copyList: "ലിസ്റ്റ് കോപ്പി ചെയ്യുക",
+      downloadCsv: "CSV ഡൗൺലോഡ് ചെയ്യുക",
+      downloadTxt: "TXT ഡൗൺലോഡ് ചെയ്യുക",
+      reset: "മറ്റൊരു ഫയൽ പരിശോധിക്കുക",
+      stepsTitle: "Instagram ZIP എങ്ങനെ എടുക്കാം",
+      stepsIntro: "റിക്വസ്റ്റ് ചെയ്യാൻ ഏകദേശം 2 മിനിറ്റ് മതി. ഡൗൺലോഡ് ലിങ്ക് Instagram സാധാരണയായി ഏതാനും മിനിറ്റുകൾക്കുള്ളിൽ മുതൽ ഏതാനും മണിക്കൂറുകൾക്കുള്ളിൽ ഇമെയിൽ ചെയ്യും.",
+      step1: "<b>Instagram തുറന്ന് നിങ്ങളുടെ പ്രൊഫൈലിൽ പോകുക</b>മുകളിൽ വലതുവശത്തെ മെനു (മൂന്ന് വരകൾ) ടാപ്പ് ചെയ്ത് Settings തുറക്കുക.",
+      step2: "<b>Accounts Centre തുറക്കുക</b><code>Accounts Centre</code>, പിന്നെ <code>Your information and permissions</code> എന്നിവ ടാപ്പ് ചെയ്യുക.",
+      step3: "<b>നിങ്ങളുടെ ഡാറ്റ റിക്വസ്റ്റ് ചെയ്യുക</b><code>Download your information</code>, പിന്നെ <code>Download or transfer information</code> ടാപ്പ് ചെയ്ത് നിങ്ങളുടെ അക്കൗണ്ട് തിരഞ്ഞെടുക്കുക.",
+      step4: "<b>JSON ഫോർമാറ്റ് തിരഞ്ഞെടുക്കുക</b><code>Some of your information</code> തിരഞ്ഞെടുത്ത് <code>Followers and following</code> മാത്രം tick ചെയ്ത് Next കൊടുക്കുക. Date range <code>All time</code>, Format <code>JSON</code> എന്ന് വെച്ച് <code>Create files</code> ടാപ്പ് ചെയ്യുക.",
+      step5: "<b>ഡൗൺലോഡ് ചെയ്ത് ഇവിടെ അപ്‌ലോഡ് ചെയ്യുക</b>Instagram ഇമെയിൽ ചെയ്യുന്ന ലിങ്ക് തുറന്ന് ZIP ഡൗൺലോഡ് ചെയ്ത് മുകളിലെ ബോക്സിൽ ഇടുക.",
+      whyJson: "എന്തുകൊണ്ട് JSON, ZIP-നുള്ളിൽ എന്താണ് ഉള്ളത്?",
+      whyJsonP1: "Instagram HTML ഡൗൺലോഡും നൽകുന്നുണ്ട്, പക്ഷേ ഈ ചെക്കർ JSON വേർഷനാണ് വായിക്കുന്നത്, അതുകൊണ്ട് റിക്വസ്റ്റ് ചെയ്യുമ്പോൾ JSON തിരഞ്ഞെടുക്കുക. ZIP-നുള്ളിൽ നിങ്ങളുടെ ലിസ്റ്റുകൾ <code>connections/followers_and_following/</code> എന്ന ഫോൾഡറിൽ <code>followers_1.json</code>, <code>following.json</code> എന്നിങ്ങനെയാണ് ഉള്ളത്. വളരെ വലിയ അക്കൗണ്ടാണെങ്കിൽ ഫോളോവേഴ്സ് <code>followers_1.json</code>, <code>followers_2.json</code> എന്നിങ്ങനെ പല ഭാഗങ്ങളായി കാണാം. ഈ പേജ് എല്ലാ ഭാഗങ്ങളും വായിക്കും.",
+      whyJsonP2: "നിങ്ങളുടെ പാസ്‌വേഡ് ഇവിടെ ഒരിക്കലും ചോദിക്കുന്നില്ല, നിങ്ങളുടെ ZIP നിങ്ങളുടെ ഉപകരണം വിട്ട് പോകുന്നില്ല. ഈ ലിസ്റ്റ് കാണിക്കാൻ Instagram ലോഗിൻ ചോദിക്കുന്ന ഒരു സൈറ്റും ഉപയോഗിക്കരുത്.",
+      privacy: "<b>സ്വകാര്യത കൊണ്ട് തന്നെ രൂപകൽപ്പന ചെയ്തത്.</b> ചെക്ക് മുഴുവനായും നിങ്ങളുടെ ബ്രൗസറിൽ JavaScript ഉപയോഗിച്ചാണ് നടക്കുന്നത്. അക്കൗണ്ട് വേണ്ട, സെർവർ ഇല്ല, സ്റ്റോറേജ് ഇല്ല, ഈ ചെക്കിന് കുക്കികൾ ഇല്ല.",
+      notAffiliated: "Instagram-മായോ Meta-യുമായോ ഇതിന് ബന്ധമില്ല. Instagram എന്നത് Meta Platforms, Inc. ന്റെ ട്രേഡ്മാർക്കാണ്.",
+      summaryGood: "നല്ല വാർത്ത. നിങ്ങൾ ഫോളോ ചെയ്യുന്ന എല്ലാവരും നിങ്ങളെ തിരിച്ച് ഫോളോ ചെയ്യുന്നു.",
+      summarySome: "നിങ്ങൾ {following} പേരെ ഫോളോ ചെയ്യുന്നു, അവരിൽ {notBack} പേർ തിരിച്ച് ഫോളോ ചെയ്യുന്നില്ല.",
+      emptySearch: "ഈ തിരച്ചിലിന് ഒന്നും കിട്ടിയില്ല.",
+      emptyNotBack: "ഇവിടെ ആരുമില്ല. എല്ലാവരും നിങ്ങളെ തിരിച്ച് ഫോളോ ചെയ്യുന്നു.",
+      emptyFans: "ഇവിടെ ആരുമില്ല.",
+      openProfile: "പ്രൊഫൈൽ തുറക്കുക",
+      copy: "കോപ്പി",
+      copied: "കോപ്പി ചെയ്തു",
+      nothingCopy: "കോപ്പി ചെയ്യാൻ ഒന്നുമില്ല",
+      nothingDownload: "ഡൗൺലോഡ് ചെയ്യാൻ ഒന്നുമില്ല",
+      errNoData: "ഈ ഫയലിൽ ഫോളോവേഴ്സ് അല്ലെങ്കിൽ ഫോളോയിങ് ഡാറ്റ ഒന്നും കണ്ടില്ല. Instagram-ൽ നിന്ന് JSON ഫോർമാറ്റിൽ ഡാറ്റ റിക്വസ്റ്റ് ചെയ്ത് ആ ZIP അപ്‌ലോഡ് ചെയ്യുക. HTML ഫോർമാറ്റ് ഇവിടെ പ്രവർത്തിക്കില്ല.",
+      errNoFollowers: "ഫോളോവേഴ്സ് ഡാറ്റ കണ്ടില്ല, ഫോളോയിങ് ഡാറ്റ മാത്രമേ ഉള്ളൂ. following.json മാത്രമല്ല, മുഴുവൻ ZIP-ഉം അപ്‌ലോഡ് ചെയ്യുക.",
+      errNoFollowing: "ഫോളോയിങ് ഡാറ്റ കണ്ടില്ല, ഫോളോവേഴ്സ് ഡാറ്റ മാത്രമേ ഉള്ളൂ. followers_1.json മാത്രമല്ല, മുഴുവൻ ZIP-ഉം അപ്‌ലോഡ് ചെയ്യുക.",
+      errBadJson: "{label} വായിക്കാൻ കഴിഞ്ഞില്ല. ഇത് ശരിയായ JSON ആയി തോന്നുന്നില്ല. Instagram അയച്ച ZIP അപ്‌ലോഡ് ചെയ്യുക.",
+      errJsZip: "ZIP റീഡർ ലോഡ് ആയില്ല. ഇന്റർനെറ്റ് കണക്ഷൻ പരിശോധിച്ച് പേജ് റിഫ്രഷ് ചെയ്ത് വീണ്ടും ശ്രമിക്കുക.",
+      errZipHtml: "ഈ ZIP HTML ഫോർമാറ്റിലാണ് എന്ന് തോന്നുന്നു. ഈ ചെക്കറിന് JSON ഫോർമാറ്റ് വേണം. Instagram-ൽ നിന്ന് വീണ്ടും ഡാറ്റ റിക്വസ്റ്റ് ചെയ്ത് Format: JSON തിരഞ്ഞെടുത്ത് ആ ZIP അപ്‌ലോഡ് ചെയ്യുക.",
+      errZipEmpty: "ഈ ZIP-ൽ ഫോളോവേഴ്സ് അല്ലെങ്കിൽ ഫോളോയിങ് ഫയലുകൾ കണ്ടില്ല. ഫോട്ടോകളോ മെസേജുകളോ മാത്രമുള്ള ZIP അല്ല, Instagram ഡാറ്റയുടെ മുഴുവൻ ZIP അപ്‌ലോഡ് ചെയ്യുക.",
+      errZipOpen: "ഈ ZIP ഫയൽ തുറക്കാൻ കഴിഞ്ഞില്ല. Instagram അയച്ച ZIP ആണെന്ന് ഉറപ്പാക്കി വീണ്ടും ശ്രമിക്കുക.",
+      errFileType: ".zip ഫയലോ followers_1.json, following.json ഫയലുകളോ അപ്‌ലോഡ് ചെയ്യുക. ഈ ഫയൽ ടൈപ്പ് പിന്തുണയ്ക്കുന്നില്ല."
+    }
+  };
+
+  var lang = "en";
+  try{ var savedLang = localStorage.getItem("ig-checker-lang"); if(savedLang === "ml" || savedLang === "en") lang = savedLang; }catch(e){}
+  function t(key){
+    var d = LANGS[lang] || LANGS.en;
+    if(d[key] !== undefined) return d[key];
+    return LANGS.en[key] || key;
+  }
+  function applyLang(next){
+    if(next === "ml" || next === "en") lang = next;
+    try{ localStorage.setItem("ig-checker-lang", lang); }catch(e){}
+    document.documentElement.lang = lang === "ml" ? "ml" : "en";
+    document.title = t("pageTitle");
+    document.getElementById("langEn").classList.toggle("active", lang === "en");
+    document.getElementById("langMl").classList.toggle("active", lang === "ml");
+    document.querySelectorAll("[data-i18n]").forEach(function(el){ el.textContent = t(el.getAttribute("data-i18n")); });
+    document.querySelectorAll("[data-i18n-html]").forEach(function(el){ el.innerHTML = t(el.getAttribute("data-i18n-html")); });
+    document.querySelectorAll("[data-i18n-ph]").forEach(function(el){ el.setAttribute("placeholder", t(el.getAttribute("data-i18n-ph"))); });
+    if(resultsCard.classList.contains("show")) render();
+  }
 
   function showError(msg){
     errorBox.innerHTML = msg;
@@ -270,8 +418,8 @@
     document.getElementById("countFans").textContent = fans.length.toLocaleString("en-IN");
     document.getElementById("resultSummary").textContent =
       notBack.length === 0
-        ? "Good news. Everyone you follow follows you back."
-        : "You follow " + state.following.size.toLocaleString("en-IN") + " people and " + notBack.length.toLocaleString("en-IN") + " of them do not follow you back.";
+        ? t("summaryGood")
+        : t("summarySome").replace("{following}", state.following.size.toLocaleString("en-IN")).replace("{notBack}", notBack.length.toLocaleString("en-IN"));
 
     var items = state.mode === "notback" ? notBack : fans;
     var q = state.query.trim().toLowerCase();
@@ -281,7 +429,7 @@
     if(items.length === 0){
       var li = document.createElement("li");
       li.className = "empty";
-      li.textContent = q ? "No match for that search." : (state.mode === "notback" ? "Nobody here. Everyone follows you back." : "Nobody here.");
+      li.textContent = q ? t("emptySearch") : (state.mode === "notback" ? t("emptyNotBack") : t("emptyFans"));
       resultList.appendChild(li);
       return;
     }
@@ -303,13 +451,13 @@
       a.href = "https://www.instagram.com/" + encodeURIComponent(it.user) + "/";
       a.target = "_blank";
       a.rel = "noopener noreferrer";
-      a.textContent = "Open profile";
+      a.textContent = t("openProfile");
       span.appendChild(a);
       who.appendChild(span);
       var copy = document.createElement("button");
       copy.className = "mini";
       copy.type = "button";
-      copy.textContent = "Copy";
+      copy.textContent = t("copy");
       copy.addEventListener("click", function(){ copyText(it.user); });
       li.appendChild(av); li.appendChild(who); li.appendChild(copy);
       resultList.appendChild(li);
@@ -326,7 +474,7 @@
     return out;
   }
   function copyText(text){
-    var done = function(){ showToast("Copied: @" + text.split("\n")[0]); };
+    var done = function(){ showToast(t("copied") + ": @" + text.split("\n")[0]); };
     if(navigator.clipboard && navigator.clipboard.writeText){
       navigator.clipboard.writeText(text).then(done, function(){ fallbackCopy(text); done(); });
     } else { fallbackCopy(text); done(); }
@@ -354,11 +502,11 @@
   }
   function handleParsed(followers, following){
     if(followers.size === 0 && following.size === 0){
-      showError("No followers or following data found in this file. Please request the JSON format from Instagram and upload that ZIP. The HTML format will not work here.");
+      showError(t("errNoData"));
       return;
     }
-    if(followers.size === 0) showError("Followers data was not found, but following data was. Please upload the full ZIP, not only following.json.");
-    else if(following.size === 0) showError("Following data was not found, but followers data was. Please upload the full ZIP, not only followers_1.json.");
+    if(followers.size === 0) showError(t("errNoFollowers"));
+    else if(following.size === 0) showError(t("errNoFollowing"));
     else clearError();
     state.followers = followers;
     state.following = following;
@@ -372,27 +520,27 @@
   function parseJsonText(map, text, label){
     var data;
     try{ data = JSON.parse(text); }
-    catch(e){ showError("Could not read " + label + ". It does not look like valid JSON. Please upload the ZIP Instagram sent you."); throw e; }
+    catch(e){ showError(t("errBadJson").replace("{label}", label)); throw e; }
     collectFromJson(map, data);
   }
   function handleZip(file){
     clearError();
     if(typeof JSZip === "undefined"){
-      showError("The ZIP reader failed to load. Please check your internet connection and refresh the page, then try again.");
+      showError(t("errJsZip"));
       return;
     }
-    setProgress(25, "Opening your ZIP...");
+    setProgress(25, t("progressOpening"));
     JSZip.loadAsync(file).then(function(zip){
-      setProgress(55, "Finding followers and following files...");
+      setProgress(55, t("progressFinding"));
       var names = Object.keys(zip.files).filter(function(n){ return !zip.files[n].dir; });
       var followerFiles = names.filter(isFollowersFile);
       var followingFiles = names.filter(isFollowingFile);
       if(followerFiles.length === 0 && followingFiles.length === 0){
         var htmlFiles = names.filter(function(n){ return /\.html$/i.test(n); });
         if(htmlFiles.length){
-          showError("This ZIP looks like the HTML format. This checker needs the JSON format. Please request your data again from Instagram and pick Format: JSON, then upload that ZIP.");
+          showError(t("errZipHtml"));
         } else {
-          showError("No followers or following files found in this ZIP. Please upload the full Instagram data ZIP, not a ZIP with only photos or messages.");
+          showError(t("errZipEmpty"));
         }
         return;
       }
@@ -400,16 +548,16 @@
       var jobs = [];
       followerFiles.forEach(function(n){ jobs.push(zip.file(n).async("string").then(function(t){ parseJsonText(followers, t, n); })); });
       followingFiles.forEach(function(n){ jobs.push(zip.file(n).async("string").then(function(t){ parseJsonText(following, t, n); })); });
-      setProgress(80, "Comparing the two lists...");
+      setProgress(80, t("progressComparing"));
       return Promise.all(jobs).then(function(){ handleParsed(followers, following); });
     }).catch(function(err){
       console.error(err);
-      showError("Could not open this ZIP file. Please check it is the ZIP Instagram sent you and try again.");
+      showError(t("errZipOpen"));
     });
   }
   function handleJsonFiles(files){
     clearError();
-    setProgress(40, "Reading your JSON files...");
+    setProgress(40, t("progressReading"));
     var followers = new Map(), following = new Map();
     var jobs = Array.prototype.slice.call(files).map(function(f){
       return f.text().then(function(t){
@@ -417,7 +565,7 @@
         else parseJsonText(followers, t, f.name);
       });
     });
-    Promise.all(jobs).then(function(){ setProgress(85, "Comparing the two lists..."); handleParsed(followers, following); })
+    Promise.all(jobs).then(function(){ setProgress(85, t("progressComparing")); handleParsed(followers, following); })
     .catch(function(err){ console.error(err); });
   }
   function handleFiles(fileList){
@@ -429,7 +577,7 @@
     if(zip){ handleZip(zip); return; }
     var jsons = files.filter(function(f){ return /\.json$/i.test(f.name); });
     if(jsons.length){ handleJsonFiles(jsons); return; }
-    showError("Please upload a .zip file, or the followers_1.json and following.json files. That file type is not supported.");
+    showError(t("errFileType"));
   }
 
   dropZone.addEventListener("dragover", function(e){ e.preventDefault(); dropZone.classList.add("drag"); });
@@ -439,6 +587,10 @@
     if(e.dataTransfer && e.dataTransfer.files) handleFiles(e.dataTransfer.files);
   });
   fileInput.addEventListener("change", function(){ handleFiles(fileInput.files); fileInput.value = ""; });
+
+  document.getElementById("langEn").addEventListener("click", function(){ applyLang("en"); });
+  document.getElementById("langMl").addEventListener("click", function(){ applyLang("ml"); });
+  applyLang();
 
   document.getElementById("tabNotBack").addEventListener("click", function(){
     state.mode = "notback";
@@ -455,19 +607,19 @@
   searchInput.addEventListener("input", function(){ state.query = searchInput.value; render(); });
   document.getElementById("copyBtn").addEventListener("click", function(){
     var items = currentItems();
-    if(!items.length){ showToast("Nothing to copy"); return; }
+    if(!items.length){ showToast(t("nothingCopy")); return; }
     copyText(items.map(function(u){ return "@" + u; }).join("\n"));
   });
   document.getElementById("csvBtn").addEventListener("click", function(){
     var items = currentItems();
-    if(!items.length){ showToast("Nothing to download"); return; }
+    if(!items.length){ showToast(t("nothingDownload")); return; }
     var label = state.mode === "notback" ? "does_not_follow_back" : "you_do_not_follow_back";
     var rows = ["username,profile_url"].concat(items.map(function(u){ return u + ",https://www.instagram.com/" + u + "/"; }));
     downloadFile("instagram-" + label + ".csv", rows.join("\n"), "text/csv");
   });
   document.getElementById("txtBtn").addEventListener("click", function(){
     var items = currentItems();
-    if(!items.length){ showToast("Nothing to download"); return; }
+    if(!items.length){ showToast(t("nothingDownload")); return; }
     var label = state.mode === "notback" ? "does-not-follow-back" : "you-do-not-follow-back";
     downloadFile("instagram-" + label + ".txt", items.map(function(u){ return "@" + u; }).join("\n"), "text/plain");
   });

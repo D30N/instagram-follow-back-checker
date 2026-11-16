@@ -21,6 +21,10 @@ Live: https://d30n.github.io/instagram-follow-back-checker/
 
 Each name links to that Instagram profile.
 
+## Language
+
+The page has an English / മലയാളം switch at the top. The choice is remembered in the browser.
+
 ## Privacy
 
 Everything runs in your browser. Your ZIP is read locally with JavaScript and is never uploaded to any server, saved, or shared. There is no login and no account. Close the page and the data is gone.
