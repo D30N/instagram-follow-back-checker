@@ -105,8 +105,7 @@
         <div class="icon">&#128193;</div>
         <h2>Drop your Instagram ZIP here</h2>
         <p>Or tap to choose a file. You can also drop the <code>followers_1.json</code> and <code>following.json</code> files directly.</p>
-        <span class="btn btn-primary">Choose ZIP file</span><br>
-        <button class="btn btn-ghost" type="button" id="demoBtn">Try with demo data</button>
+        <span class="btn btn-primary">Choose ZIP file</span>
         <input type="file" id="fileInput" accept=".zip,application/zip,application/json,.json" multiple>
       </label>
       <p class="hint">Your file is read only inside this browser tab. Nothing is uploaded to any server, and nothing is saved after you close the page.</p>
@@ -439,23 +438,7 @@
     e.preventDefault(); dropZone.classList.remove("drag");
     if(e.dataTransfer && e.dataTransfer.files) handleFiles(e.dataTransfer.files);
   });
-  dropZone.addEventListener("click", function(e){
-    if(e.target && (e.target.id === "demoBtn" || e.target.closest("#demoBtn"))) return;
-  });
   fileInput.addEventListener("change", function(){ handleFiles(fileInput.files); fileInput.value = ""; });
-
-  document.getElementById("demoBtn").addEventListener("click", function(e){
-    e.preventDefault(); e.stopPropagation();
-    clearError(); resultsCard.classList.remove("show");
-    var followers = new Map([["ammu","Ammu"],["deon.friend","Friend"],["keerthi","Keerthi"],["priya","Priya"],["rahul","Rahul"]]);
-    var following = new Map([["ammu","Ammu"],["keerthi","Keerthi"],["arjun","Arjun"],["meera","Meera"],["rahul","Rahul"],["sana","Sana"]]);
-    state.followers = followers; state.following = following;
-    state.mode = "notback"; state.query = ""; searchInput.value = "";
-    document.getElementById("tabNotBack").classList.add("active");
-    document.getElementById("tabFans").classList.remove("active");
-    finish();
-    showToast("Demo data loaded");
-  });
 
   document.getElementById("tabNotBack").addEventListener("click", function(){
     state.mode = "notback";

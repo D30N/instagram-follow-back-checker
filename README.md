@@ -13,8 +13,6 @@ Live: https://d30n.github.io/instagram-follow-back-checker/
 4. Drop that ZIP on the page. You can also drop the `followers_1.json` and `following.json` files directly.
 5. See the list, search it, copy it, or download it as CSV or TXT.
 
-There is also a "Try with demo data" button if you want to see how it works first.
-
 ## What it shows
 
 - Followers, Following, mutual follows, and do-not-follow-back counts
